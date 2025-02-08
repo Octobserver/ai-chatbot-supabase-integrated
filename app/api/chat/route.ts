@@ -33,6 +33,7 @@ export async function POST(req: Request) {
               cookieStore.set(name, value, options)
             )
           } catch (error) {
+            console.log("error in chat")
             console.log(error)
           }
         },
