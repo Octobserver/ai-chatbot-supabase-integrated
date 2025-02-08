@@ -1,6 +1,7 @@
 'use server'
 import 'server-only'
-import { createServerActionClient } from '@supabase/auth-helpers-nextjs'
+//import { createServerActionClient } from '@supabase/auth-helpers-nextjs'
+import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers'
 import { Database } from '@/lib/db_types'
 import { revalidatePath } from 'next/cache'
@@ -13,10 +14,28 @@ export async function getChats(userId?: string | null) {
     return []
   }
   try {
-    const cookieStore = cookies()
-    const supabase = createServerActionClient<Database>({
-      cookies: () => cookieStore
-    })
+    const cookieStore = await cookies()
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll()
+          },
+          setAll(cookiesToSet) {
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+              )
+            } catch (error) {
+              console.log(error)
+            }
+          },
+        },
+      }
+    )
+    
     const { data } = await supabase
       .from('chats')
       .select('payload')
@@ -31,10 +50,28 @@ export async function getChats(userId?: string | null) {
 }
 
 export async function getChat(id: string) {
-  const cookieStore = cookies()
-  const supabase = createServerActionClient<Database>({
-    cookies: () => cookieStore
-  })
+  const cookieStore = await cookies()
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          } catch (error) {
+            console.log(error)
+          }
+        },
+      },
+    }
+  )
+
   const { data } = await supabase
     .from('chats')
     .select('payload')
@@ -47,9 +84,26 @@ export async function getChat(id: string) {
 export async function removeChat({ id, path }: { id: string; path: string }) {
   try {
     const cookieStore = cookies()
-    const supabase = createServerActionClient<Database>({
-      cookies: () => cookieStore
-    })
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll()
+          },
+          setAll(cookiesToSet) {
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+              )
+            } catch (error) {
+              console.log(error)
+            }
+          },
+        },
+      }
+    )
     await supabase.from('chats').delete().eq('id', id).throwOnError()
 
     revalidatePath('/')
@@ -64,9 +118,26 @@ export async function removeChat({ id, path }: { id: string; path: string }) {
 export async function clearChats() {
   try {
     const cookieStore = cookies()
-    const supabase = createServerActionClient<Database>({
-      cookies: () => cookieStore
-    })
+    const supabase = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() {
+            return cookieStore.getAll()
+          },
+          setAll(cookiesToSet) {
+            try {
+              cookiesToSet.forEach(({ name, value, options }) =>
+                cookieStore.set(name, value, options)
+              )
+            } catch (error) {
+              console.log(error)
+            }
+          },
+        },
+      }
+    )
     await supabase.from('chats').delete().throwOnError()
     revalidatePath('/')
     return redirect('/')
@@ -80,9 +151,26 @@ export async function clearChats() {
 
 export async function getSharedChat(id: string) {
   const cookieStore = cookies()
-  const supabase = createServerActionClient<Database>({
-    cookies: () => cookieStore
-  })
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          } catch (error) {
+            console.log(error)
+          }
+        },
+      },
+    }
+  )
   const { data } = await supabase
     .from('chats')
     .select('payload')
@@ -100,9 +188,26 @@ export async function shareChat(chat: Chat) {
   }
 
   const cookieStore = cookies()
-  const supabase = createServerActionClient<Database>({
-    cookies: () => cookieStore
-  })
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          } catch (error) {
+            console.log(error)
+          }
+        },
+      },
+    }
+  )
   await supabase
     .from('chats')
     .update({ payload: payload as any })

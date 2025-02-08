@@ -1,7 +1,8 @@
 import 'server-only'
 import { OpenAIStream, StreamingTextResponse } from 'ai'
 import { Configuration, OpenAIApi } from 'openai-edge'
-import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+//import { createRouteHandlerClient } from '@supabase/auth-helpers-nextjs'
+import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { Database } from '@/lib/db_types'
 
@@ -18,9 +19,26 @@ const openai = new OpenAIApi(configuration)
 
 export async function POST(req: Request) {
   const cookieStore = cookies()
-  const supabase = createRouteHandlerClient<Database>({
-    cookies: () => cookieStore
-  })
+  const supabase = createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet) {
+          try {
+            cookiesToSet.forEach(({ name, value, options }) =>
+              cookieStore.set(name, value, options)
+            )
+          } catch (error) {
+            console.log(error)
+          }
+        },
+      },
+    }
+  )
   const json = await req.json()
   const { messages, previewToken } = json
   const userId = (await auth({ cookieStore }))?.user.id
