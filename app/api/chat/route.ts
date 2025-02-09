@@ -42,13 +42,20 @@ export async function POST(req: Request) {
   )
   const json = await req.json()
   const { messages, previewToken } = json
-  const userId = (await auth({ cookieStore }))?.user.id
-
-  if (!userId) {
+  const { data: { user } } = await supabase.auth.getUser()
+  if (!user) {
     return new Response('Unauthorized', {
       status: 401
     })
   }
+  //const userId = (await auth({ cookieStore }))?.user.id
+  const userId = user.id
+
+  //if (!userId) {
+  //  return new Response('Unauthorized', {
+  //    status: 401
+  //  })
+  //}
 
   if (previewToken) {
     configuration.apiKey = previewToken
